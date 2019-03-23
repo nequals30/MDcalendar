@@ -13,7 +13,7 @@ class mdCalendar(HTMLCalendar):
         self.cssclass_today = "today"
         self.dtToday = datetime.datetime.today().date()
 
-    def formatMonthMd(self, theyear, themonth, mdList):
+    def formatMonthMd(self, theyear, themonth, mdList, customIdDict):
         v=[]
         a = v.append
         a('<table '
@@ -27,18 +27,18 @@ class mdCalendar(HTMLCalendar):
         a(self.formatweekheader())
         a('\n')
         for week in self.monthdays2calendar(theyear, themonth):
-            a(self.formatweekMd(week,themonth,theyear,mdList))
+            a(self.formatweekMd(week,themonth,theyear,mdList,customIdDict))
             a('\n')
         a('</table>')
         a('\n')
         return ''.join(v)
 
-    def formatweekMd(self,theweek,mo,yr,mdList):
+    def formatweekMd(self,theweek,mo,yr,mdList,customIdDict):
         # just passes mdList through
-        s = ''.join(self.formatdayMd(d,wd,mo,yr,mdList) for (d,wd) in theweek)
+        s = ''.join(self.formatdayMd(d,wd,mo,yr,mdList,customIdDict) for (d,wd) in theweek)
         return '<tr>%s</tr>' % s
 
-    def formatdayMd(self,day,weekday,mo,yr,mdList):
+    def formatdayMd(self,day,weekday,mo,yr,mdList,customIdDict):
         if day == 0:
             return '<td class="%s">&nbsp;</td>' % self.cssclass_noday
         else:
@@ -51,7 +51,9 @@ class mdCalendar(HTMLCalendar):
                 dayCssClass = self.cssclasses[weekday] + " crossed"
             else:
                 dayCssClass = self.cssclasses[weekday]
-            
+
+            if (thisDayStr in customIdDict) and (customIdDict[thisDayStr] != ""):
+                dayCssClass = dayCssClass + " " + customIdDict[thisDayStr]
 
             if thisDayStr in mdList:
                 dayContents = mdList[thisDayStr]
