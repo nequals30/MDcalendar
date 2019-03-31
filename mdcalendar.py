@@ -1,7 +1,8 @@
 import mistune
-from dateutil import parser,rrule 
+from dateutil import parser,relativedelta
 import calendarClass
 import datetime
+
 try:
     import mdCalendarConfig as cfg
 except ModuleNotFoundError:
@@ -81,10 +82,12 @@ f.write('<html>\n<head>\n'
         '</head>\n<body>')
 
 f.write(prefaceHtml)
-eDt = eomDt(max(calDtList))
-for dt in rrule.rrule(rrule.MONTHLY,dtstart=c.dtToday,until=eDt):
-    f.write(c.formatMonthMd(dt.year,dt.month,calDictHtml,calCustomIdDict))
 
+eDt = eomDt(max(calDtList)).date()
+dt = c.dtToday
+while dt <= eDt:
+    f.write(c.formatMonthMd(dt.year,dt.month,calDictHtml,calCustomIdDict))
+    dt = dt + relativedelta.relativedelta(months=+1)
 f.write('</body></html>')
 f.close()
 print('calendar written')
