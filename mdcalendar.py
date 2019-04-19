@@ -3,6 +3,8 @@ from dateutil import parser,relativedelta
 import calendarClass
 import datetime
 
+# Pull in config file, create one if it doesn't exits
+# ---------------------------------
 try:
     import mdCalendarConfig as cfg
 except ModuleNotFoundError:
@@ -32,6 +34,9 @@ calDict = {}
 calKey = None
 calCustomIdDict = {}
 
+rrDtList = []
+rrDict = {}
+
 for line in f_md:
     line = line.strip()
 
@@ -52,11 +57,17 @@ for line in f_md:
             calDtList.append(thisDt)
             calDict[calKey] = ''
             calCustomIdDict[calKey] = customId
+        #else:
+            # not implemented
 
-    elif line[0:5]=="+ ":
+    elif line[0:2]=="+ ":
         # Recurring Events
         isPreface = False
-        # not implemented yet
+        thisDt = parser.parse(line[2:line.find('-')])
+        calKey = thisDt.strftime('%Y-%m-%d')
+        if calKey not in rrDict:
+            rrDtList.append(thisDt)
+            rrDict[calKey] = line[line.find('-'):]
 
     else:
         if not isPreface and not (line[0:3]=="---"):
@@ -69,8 +80,11 @@ f_md.close()
 
 prefaceHtml = mistune.markdown(preface)
 calDictHtml = {}
+rrDictHtml = {}
 for key in calDict:
     calDictHtml[key] = mistune.markdown(calDict[key])
+for key in rrDict:
+    rrDictHtml[key] = "<i>" + mistune.markdown(rrDict[key]) + "</i>"
 
 # Open the HTML file and write to it 
 # ---------------------------------
@@ -86,7 +100,7 @@ f.write(prefaceHtml)
 eDt = eomDt(max(calDtList)).date()
 dt = c.dtToday
 while dt <= eDt:
-    f.write(c.formatMonthMd(dt.year,dt.month,calDictHtml,calCustomIdDict))
+    f.write(c.formatMonthMd(dt.year,dt.month,calDictHtml,rrDictHtml,calCustomIdDict))
     dt = dt + relativedelta.relativedelta(months=+1)
 f.write('</body></html>')
 f.close()
@@ -112,3 +126,4 @@ for dt in calDtListOLD:
     f_new.write(calDict[dt.strftime('%Y-%m-%d')])
 
 f_new.close()
+print(rrDict)
