@@ -26,7 +26,7 @@ def eomDt(dt):
 # ---------------------------------
 f_md = open(cfg.mdInPath,'r')
 
-isPreface = True
+status = "pre"
 preface = ""
 
 calDtList = []
@@ -41,7 +41,7 @@ for line in f_md:
     line = line.strip()
 
     if line[0:4]=="### ":
-        isPreface = False
+        status = "cal"
         # Custom Ids
         if ("(" in line) and (")" in line):
             customId = line[line.find("("):line.find(")")+1]
@@ -62,7 +62,7 @@ for line in f_md:
 
     elif line[0:2]=="+ ":
         # Recurring Events
-        isPreface = False
+        status = "rec"
         thisDt = parser.parse(line[2:line.find('-')])
         calKey = thisDt.strftime('%Y-%m-%d')
         if calKey not in rrDict:
@@ -70,10 +70,12 @@ for line in f_md:
             rrDict[calKey] = line[line.find('-'):]
 
     else:
-        if not isPreface and not (line[0:3]=="---"):
+        if status=="cal" and not (line[0:3]=="---"):
             calDict[calKey] += line + '\n'
+        if status=="rec" and not (line[0:3]=="---"):
+            rrDict[calKey] += line + '\n'
 
-    if isPreface and not (line[0:3]=="---"):
+    if status=="pre" and not (line[0:3]=="---"):
         preface += line + '\n'
         
 f_md.close()
@@ -126,4 +128,3 @@ for dt in calDtListOLD:
     f_new.write(calDict[dt.strftime('%Y-%m-%d')])
 
 f_new.close()
-print(rrDict)
