@@ -1,10 +1,15 @@
 # MDcalendar
-This is a Python script to parse a Markdown agenda into an HTML calendar.
+This is a Python script to turn a Markdown "agenda" into an HTML calendar.
 
-## The Rules
+## How it Works (Calendar Rules)
+These are the "rules" that define how the markdown calendar needs to be laid out. The idea is that there are very few rules. 
 
-### Dates
-Anything that starts with `### ` is considered a date entry. Some Examples:
+Only lines that start with `### ` or `+ ` have any special properties. Everything else will get parsed from markdown to html like normal.
+
+Lines that have `---` (horizontal lines) will be ignored.
+
+### Date Entries
+Anything line that starts with `### ` starts a date entry. Anything below that line is consided part of that date entry. Some Examples:
 
 ```
 ### June 1
@@ -16,8 +21,16 @@ Anything that starts with `### ` is considered a date entry. Some Examples:
 - [ ] pay rent
 * Dancing
 ```
+### Recurring Events
+Anything starting with a `+ ` is a recurring event. For example you can use it to keep track of birthdays:
+```
++ 4/18 - bob's birthday
++ 4/22 - steve's birthday
++ 4/27 - steph's birthday
+``` 
 
-Anything before the first `###` is displayed on top above the calendar. I use this for my todo list:
+### Preface / To-Do List
+Anything at the top of the file (before the first `### ` or `+ ` is displayed on top above the calendar. I use this for my todo list:
 
 ```
 -[ ] todo 1
@@ -28,4 +41,4 @@ Anything before the first `###` is displayed on top above the calendar. I use th
 ...
 ```
 
-
+## Other Functionality
