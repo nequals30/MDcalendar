@@ -68,6 +68,8 @@ for line in f_md:
         if calKey not in rrDict:
             rrDtList.append(thisDt)
             rrDict[calKey] = line[line.find('-'):]
+        else:
+            rrDict[calKey] += '\n'+ line[line.find('-'):]
 
     else:
         if status=="cal" and not (line[0:3]=="---"):
@@ -114,17 +116,33 @@ f_new = open(cfg.mdOutPath,'w')
 f_new.write(preface)
 f_new.write('---' + '\n\n')
 
+# write the calendar portion
 calDtListOLD = []
 calDtList = sorted(calDtList)
 for dt in calDtList:
     if dt.date() >= c.dtToday:
-        f_new.write('### ' + dt.strftime('%A, %B %d, %Y') + '\n')
-        f_new.write(calDict[dt.strftime('%Y-%m-%d')])
+        thisDtStr = dt.strftime('%Y-%m-%d')
+        f_new.write('### ' + dt.strftime('%A, %B %d, %Y'))
+        if calCustomIdDict[thisDtStr]:
+            f_new.write(' (' + calCustomIdDict[thisDtStr] + ')')
+        f_new.write('\n' + calDict[dt.strftime('%Y-%m-%d')])
     else:
         calDtListOLD.append(dt)
+
+# write the recurring events
+f_new.write('---' + '\n\n')
+rrDtList = sorted(rrDtList)
+for dt in rrDtList:
+    thisDtStr = dt.strftime('%Y-%m-%d')
+    f_new.write('+ ' + dt.strftime('%m/%d') + '-' + rrDict[thisDtStr] + '\n')
+
+# write the old calendar
 f_new.write('---' + '\n\n')
 for dt in calDtListOLD:
-    f_new.write('### ' + dt.strftime('%A, %B %d, %Y') + '\n')
-    f_new.write(calDict[dt.strftime('%Y-%m-%d')])
+    thisDtStr = dt.strftime('%Y-%m-%d')
+    f_new.write('### ' + dt.strftime('%A, %B %d, %Y'))
+    if calCustomIdDict[thisDtStr]:
+        f_new.write(' (' + calCustomIdDict[thisDtStr] + ')')
+    f_new.write('\n' + calDict[dt.strftime('%Y-%m-%d')])
 
 f_new.close()
