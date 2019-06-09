@@ -26,23 +26,27 @@ def eomDt(dt):
 # ---------------------------------
 f_md = open(cfg.mdInPath,'r')
 
-status = "pre"
-preface = ""
+status = "pre" # pre, cal, rec
 
+# stuff will get added to these
+# as it loops through the file
+preface = ""
 calDtList = []
 calDict = {}
 calKey = None
 calCustomIdDict = {}
-
 rrDtList = []
 rrDict = {}
 
+# read through the file
 for line in f_md:
     line = line.strip()
 
     if line[0:4]=="### ":
+        # calendar section
+
         status = "cal"
-        # Custom Ids
+        # look for Custom Ids e.g '(travel)'
         if ("(" in line) and (")" in line):
             customId = line[line.find("("):line.find(")")+1]
             line = line.replace(customId,"")
@@ -61,6 +65,7 @@ for line in f_md:
             # not implemented
 
     elif line[0:2]=="+ ":
+
         # Recurring Events
         status = "rec"
         thisDt = parser.parse(line[2:line.find('-')])
@@ -72,16 +77,19 @@ for line in f_md:
             rrDict[calKey] += '\n'+ line[line.find('-'):]
 
     else:
+        # just append to the dict for that date
         if status=="cal" and not (line[0:3]=="---"):
             calDict[calKey] += line + '\n'
         if status=="rec" and not (line[0:3]=="---"):
             rrDict[calKey] += line + '\n'
 
     if status=="pre" and not (line[0:3]=="---"):
+        # append to the preface
         preface += line + '\n'
         
 f_md.close()
 
+# parse the markdown into HTML
 prefaceHtml = mistune.markdown(preface)
 calDictHtml = {}
 rrDictHtml = {}
@@ -94,7 +102,7 @@ for key in rrDict:
 # ---------------------------------
 c = calendarClass.mdCalendar()
 f = open(cfg.calendarOutPath,'w')
-f.write('<html>\n<head>\n'
+f.write('<html>\n<head><title>MDcalendar</title>\n'
         '<link rel="stylesheet" type="text/css" href="' + cfg.cssPath + '">'
         '<meta charset="utf-8">'
         '</head>\n<body>')
@@ -134,7 +142,10 @@ f_new.write('---' + '\n\n')
 rrDtList = sorted(rrDtList)
 for dt in rrDtList:
     thisDtStr = dt.strftime('%Y-%m-%d')
-    f_new.write('+ ' + dt.strftime('%m/%d') + '-' + rrDict[thisDtStr] + '\n')
+    rrDict[thisDtStr] = rrDict[thisDtStr].replace('\n- ','\n+ ' + dt.strftime('%m/%d') + ' - ')
+    if rrDict[thisDtStr][0:2] == '- ':
+        rrDict[thisDtStr] = rrDict[thisDtStr][2:]
+    f_new.write('+ ' + dt.strftime('%m/%d') + ' - ' + rrDict[thisDtStr] + '\n')
 
 # write the old calendar
 f_new.write('---' + '\n\n')
