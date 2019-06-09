@@ -41,4 +41,9 @@ Anything at the top of the file (before the first `### ` or `+ ` is displayed on
 ...
 ```
 
-## Other Functionality
+## Result
+The `mdcalendar.py` script does two things:
+* It cleans up and organizes the markdown document and saves it to the location specified by the `mdOutPath` in the `mdCalendarConfig.py` file (which by default overwrites the original markdown file).
+* It generates a calendar in HTML that looks like this: 
+
+<img src="images/image_sample.png"></img>
