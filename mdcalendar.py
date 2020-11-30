@@ -2,6 +2,12 @@ import mistune
 from dateutil import parser,relativedelta
 import calendarClass
 import datetime
+import argparse
+
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument('--full', help='write entire calendar to HTML', action='store_true')
+args = argParser.parse_args()
 
 # Pull in config file, create one if it doesn't exits
 # ---------------------------------
@@ -110,7 +116,10 @@ f.write('<html>\n<head><title>MDcalendar</title>\n'
 f.write(prefaceHtml)
 
 eDt = eomDt(max(calDtList)).date()
-dt = c.dtToday
+if args.full:
+    dt = min(calDtList).date()
+else:
+    dt = c.dtToday
 while dt <= eDt:
     f.write(c.formatMonthMd(dt.year,dt.month,calDictHtml,rrDictHtml,calCustomIdDict))
     dt = dt + relativedelta.relativedelta(months=+1)
