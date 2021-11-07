@@ -7,6 +7,7 @@ import argparse
 
 argParser = argparse.ArgumentParser()
 argParser.add_argument('--full', help='write entire calendar to HTML', action='store_true')
+argParser.add_argument('--internalCss', help='write the css file into the HTML file as internal CSS', action='store_true')
 args = argParser.parse_args()
 
 # Pull in config file, create one if it doesn't exits
@@ -108,8 +109,16 @@ for key in rrDict:
 # ---------------------------------
 c = calendarClass.mdCalendar()
 f = open(cfg.calendarOutPath,'w')
-f.write('<html>\n<head><title>MDcalendar</title>\n'
-        '<link rel="stylesheet" type="text/css" href="' + cfg.cssPath + '">'
+if args.internalCss:
+    cssPart = '<style>'
+    with open(cfg.cssPath,'r') as f_css:
+        for line in f_css:
+            cssPart = cssPart + line
+    cssPart = cssPart + '</style>'
+else:
+    cssPart = '<link rel="stylesheet" type="text/css" href="' + cfg.cssPath + '">'
+f.write('<html>\n<head><title>MDcalendar</title>\n'+
+        cssPart+
         '<meta charset="utf-8">'
         '</head>\n<body>')
 
